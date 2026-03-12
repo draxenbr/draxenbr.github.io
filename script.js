@@ -1,179 +1,126 @@
-// Dados do servidor
-let serverData = {
-    siteTitle: "⚡ DraxenBR ⚡",
-    siteDescription: "O servidor mais épico de Minecraft!",
-    ip: "sp-16.raze.host:25625",
-    version: "1.20.4",
-    about: "DraxenBR é um servidor feito para a comunidade brasileira, com foco em diversão e amizade! Temos diversos modos de jogo e eventos especiais.",
-    discord: "https://discord.gg/eQ4exVGPJw",
-    email: "contato@draxenbr.com",
-    footer: "© 2024 DraxenBR. Todos os direitos reservados.",
-    features: [
-        { title: "⚔️ PvP", desc: "Arenas PvP exclusivas com sistema de ranks" },
-        { title: "🏗️ Construção", desc: "Mundo de construção com proteção de terrenos" },
-        { title: "🎉 Eventos", desc: "Eventos semanais com prêmios incríveis" },
-        { title: "💎 Economia", desc: "Sistema econômico completo e lojas" }
-    ],
-    images: [
-        "https://via.placeholder.com/300x200/ff6b6b/ffffff?text=DraxenBR+1",
-        "https://via.placeholder.com/300x200/4CAF50/ffffff?text=DraxenBR+2",
-        "https://via.placeholder.com/300x200/2196F3/ffffff?text=DraxenBR+3"
-    ],
-    rules: [
-        "Respeitar todos os jogadores",
-        "Não usar hacks ou modificações proibidas",
-        "Não floodar no chat",
-        "Divirta-se!"
-    ]
+// CONFIGURAÇÃO DO FIREBASE - JÁ ESTÁ COM SEUS DADOS!
+const firebaseConfig = {
+    apiKey: "AIzaSyBZ_3iMIlOA09AptniHlZCwWKBu6Ci_rO8",
+    authDomain: "draxenbr-2d193.firebaseapp.com",
+    databaseURL: "https://draxenbr-2d193-default-rtdb.firebaseio.com",
+    projectId: "draxenbr-2d193",
+    storageBucket: "draxenbr-2d193.firebasestorage.app",
+    messagingSenderId: "507499041074",
+    appId: "1:507499041074:web:d70105f19c562d052d072b"
 };
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 let isAdminMode = false;
 
-// Carregar dados salvos
-function loadSavedData() {
-    const saved = localStorage.getItem('draxenbr_data');
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            serverData = { ...serverData, ...parsed };
-        } catch (e) {
-            console.error('Erro ao carregar dados salvos');
+// Carregar dados do Firebase
+async function loadData() {
+    try {
+        // Carregar configurações gerais
+        const configDoc = await db.collection('config').doc('geral').get();
+        if (configDoc.exists) {
+            const data = configDoc.data();
+            document.getElementById('site-title').textContent = data.siteTitle || '⚡ DraxenBR ⚡';
+            document.getElementById('site-description').textContent = data.siteDescription || 'O servidor mais épico de Minecraft!';
+            document.getElementById('server-ip-display').textContent = data.ip || 'sp-16.raze.host:25625';
+            document.getElementById('version-text').textContent = data.version || '1.20.4';
+            document.getElementById('about-text').textContent = data.about || 'DraxenBR é um servidor feito para a comunidade brasileira...';
+            document.getElementById('discord-link').textContent = data.discord || 'https://discord.gg/eQ4exVGPJw';
+            document.getElementById('discord-link').href = data.discord || 'https://discord.gg/eQ4exVGPJw';
+            document.getElementById('discord-button').href = data.discord || 'https://discord.gg/eQ4exVGPJw';
+            document.getElementById('contact-email').textContent = data.email || 'contato@draxenbr.com';
+            document.getElementById('footer-text').textContent = data.footer || '© 2024 DraxenBR. Todos os direitos reservados.';
+            
+            if (isAdminMode) {
+                document.getElementById('editSiteTitle').value = data.siteTitle || '';
+                document.getElementById('editSiteDescription').value = data.siteDescription || '';
+                document.getElementById('editServerIP').value = data.ip || '';
+                document.getElementById('editVersion').value = data.version || '';
+                document.getElementById('editAbout').value = data.about || '';
+                document.getElementById('editDiscord').value = data.discord || '';
+                document.getElementById('editEmail').value = data.email || '';
+                document.getElementById('editFooter').value = data.footer || '';
+            }
         }
-    }
-    updateDisplay();
-}
-
-// Salvar dados
-function saveData() {
-    localStorage.setItem('draxenbr_data', JSON.stringify(serverData));
-}
-
-// Atualizar display completo
-function updateDisplay() {
-    document.getElementById('site-title').textContent = serverData.siteTitle;
-    document.getElementById('site-description').textContent = serverData.siteDescription;
-    document.getElementById('server-ip-display').textContent = serverData.ip;
-    document.getElementById('version-text').textContent = serverData.version;
-    document.getElementById('about-text').textContent = serverData.about;
-    document.getElementById('discord-link').textContent = serverData.discord;
-    document.getElementById('discord-link').href = serverData.discord;
-    document.getElementById('contact-email').textContent = serverData.email;
-    document.getElementById('footer-text').textContent = serverData.footer;
-    
-    updateFeaturesDisplay();
-    updateRulesDisplay();
-    updateGalleryDisplay();
-    
-    if (isAdminMode) {
-        document.getElementById('editSiteTitle').value = serverData.siteTitle;
-        document.getElementById('editSiteDescription').value = serverData.siteDescription;
-        document.getElementById('editServerIP').value = serverData.ip;
-        document.getElementById('editVersion').value = serverData.version;
-        document.getElementById('editAbout').value = serverData.about;
-        document.getElementById('editDiscord').value = serverData.discord;
-        document.getElementById('editEmail').value = serverData.email;
-        document.getElementById('editFooter').value = serverData.footer;
         
-        updateFeaturesList();
-        updateRulesList();
-        updateImagesList();
+        // Carregar features
+        const featuresSnapshot = await db.collection('features').orderBy('ordem').get();
+        const featuresContainer = document.getElementById('features-container');
+        featuresContainer.innerHTML = '';
+        const featuresList = document.getElementById('features-list');
+        if (featuresList) featuresList.innerHTML = '';
+        
+        featuresSnapshot.forEach((doc, index) => {
+            const f = doc.data();
+            featuresContainer.innerHTML += `
+                <div class="feature-card">
+                    <h3>${f.title}</h3>
+                    <p>${f.desc}</p>
+                </div>
+            `;
+            
+            if (isAdminMode && featuresList) {
+                featuresList.innerHTML += `
+                    <div class="editable-item">
+                        <div><strong>${f.title}</strong><br><small>${f.desc}</small></div>
+                        <button class="btn btn-small btn-danger" onclick="deleteFeature('${doc.id}')">🗑️</button>
+                    </div>
+                `;
+            }
+        });
+        
+        // Carregar regras
+        const rulesSnapshot = await db.collection('rules').orderBy('ordem').get();
+        const rulesContainer = document.getElementById('rules-container');
+        rulesContainer.innerHTML = '';
+        const rulesList = document.getElementById('rules-list');
+        if (rulesList) rulesList.innerHTML = '';
+        
+        rulesSnapshot.forEach((doc) => {
+            const r = doc.data();
+            rulesContainer.innerHTML += `<li>${r.text}</li>`;
+            if (isAdminMode && rulesList) {
+                rulesList.innerHTML += `
+                    <div class="editable-item">
+                        <div>${r.text}</div>
+                        <button class="btn btn-small btn-danger" onclick="deleteRule('${doc.id}')">🗑️</button>
+                    </div>
+                `;
+            }
+        });
+        
+        // Carregar imagens
+        const imagesSnapshot = await db.collection('images').orderBy('ordem').get();
+        const galleryContainer = document.getElementById('gallery-container');
+        galleryContainer.innerHTML = '';
+        const imagesList = document.getElementById('images-list');
+        if (imagesList) imagesList.innerHTML = '';
+        
+        imagesSnapshot.forEach((doc) => {
+            const img = doc.data().url;
+            galleryContainer.innerHTML += `
+                <div class="gallery-item">
+                    <img src="${img}" alt="Screenshot">
+                </div>
+            `;
+            if (isAdminMode && imagesList) {
+                imagesList.innerHTML += `
+                    <div class="editable-item">
+                        <div><img src="${img}" style="width:50px; height:50px; object-fit:cover;"> ${img.substring(0,30)}...</div>
+                        <button class="btn btn-small btn-danger" onclick="deleteImage('${doc.id}')">🗑️</button>
+                    </div>
+                `;
+            }
+        });
+        
+    } catch (error) {
+        console.error("Erro ao carregar dados:", error);
     }
 }
 
-function updateFeaturesDisplay() {
-    const container = document.getElementById('features-container');
-    container.innerHTML = '';
-    serverData.features.forEach(feature => {
-        const card = document.createElement('div');
-        card.className = 'feature-card';
-        card.innerHTML = `
-            <h3>${feature.title}</h3>
-            <p>${feature.desc}</p>
-        `;
-        container.appendChild(card);
-    });
-}
-
-function updateRulesDisplay() {
-    const container = document.getElementById('rules-container');
-    container.innerHTML = '';
-    serverData.rules.forEach(rule => {
-        const li = document.createElement('li');
-        li.textContent = rule;
-        container.appendChild(li);
-    });
-}
-
-function updateGalleryDisplay() {
-    const container = document.getElementById('gallery-container');
-    container.innerHTML = '';
-    serverData.images.forEach((img, index) => {
-        const item = document.createElement('div');
-        item.className = 'gallery-item';
-        item.innerHTML = `
-            <img src="${img}" alt="Screenshot ${index + 1}">
-            <button class="remove-image" onclick="removeImage(${index})">×</button>
-        `;
-        container.appendChild(item);
-    });
-}
-
-function updateFeaturesList() {
-    const list = document.getElementById('features-list');
-    list.innerHTML = '';
-    serverData.features.forEach((feature, index) => {
-        const div = document.createElement('div');
-        div.className = 'editable-item';
-        div.innerHTML = `
-            <div class="editable-item-content">
-                <strong>${feature.title}</strong><br>
-                <small>${feature.desc}</small>
-            </div>
-            <div class="editable-item-actions">
-                <button class="btn btn-small btn-danger" onclick="removeFeature(${index})">🗑️</button>
-            </div>
-        `;
-        list.appendChild(div);
-    });
-}
-
-function updateRulesList() {
-    const list = document.getElementById('rules-list');
-    list.innerHTML = '';
-    serverData.rules.forEach((rule, index) => {
-        const div = document.createElement('div');
-        div.className = 'editable-item';
-        div.innerHTML = `
-            <div class="editable-item-content">
-                ${rule}
-            </div>
-            <div class="editable-item-actions">
-                <button class="btn btn-small btn-danger" onclick="removeRule(${index})">🗑️</button>
-            </div>
-        `;
-        list.appendChild(div);
-    });
-}
-
-function updateImagesList() {
-    const list = document.getElementById('images-list');
-    list.innerHTML = '';
-    serverData.images.forEach((img, index) => {
-        const div = document.createElement('div');
-        div.className = 'editable-item';
-        div.innerHTML = `
-            <div class="editable-item-content">
-                <img src="${img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
-                <small style="display: block;">${img.substring(0, 30)}...</small>
-            </div>
-            <div class="editable-item-actions">
-                <button class="btn btn-small btn-danger" onclick="removeImage(${index})">🗑️</button>
-            </div>
-        `;
-        list.appendChild(div);
-    });
-}
-
+// Funções do Admin
 function showAdminLogin() {
     document.getElementById('overlay').classList.add('active');
     document.getElementById('adminLogin').style.display = 'block';
@@ -186,9 +133,7 @@ function hideAdminLogin() {
 
 function hideAllModals() {
     hideAdminLogin();
-    if (isAdminMode) {
-        toggleAdmin();
-    }
+    if (isAdminMode) toggleAdmin();
 }
 
 function checkAdminPassword() {
@@ -198,10 +143,10 @@ function checkAdminPassword() {
         isAdminMode = true;
         document.body.classList.add('admin-mode');
         document.getElementById('adminPanel').classList.add('active');
-        updateDisplay();
+        loadData();
         document.getElementById('adminPassword').value = '';
     } else {
-        alert('❌ Senha incorreta!');
+        alert('Senha incorreta!');
         document.getElementById('adminPassword').value = '';
     }
 }
@@ -213,127 +158,135 @@ function toggleAdmin() {
     document.getElementById('overlay').classList.remove('active');
 }
 
-function addFeature() {
+async function saveAllChanges() {
+    try {
+        await db.collection('config').doc('geral').set({
+            siteTitle: document.getElementById('editSiteTitle').value,
+            siteDescription: document.getElementById('editSiteDescription').value,
+            ip: document.getElementById('editServerIP').value,
+            version: document.getElementById('editVersion').value,
+            about: document.getElementById('editAbout').value,
+            discord: document.getElementById('editDiscord').value,
+            email: document.getElementById('editEmail').value,
+            footer: document.getElementById('editFooter').value
+        });
+        
+        alert('✅ Dados salvos! Todos os visitantes verão as alterações.');
+        loadData();
+    } catch (error) {
+        alert('Erro ao salvar: ' + error.message);
+    }
+}
+
+async function addFeature() {
     const title = document.getElementById('newFeatureTitle').value;
     const desc = document.getElementById('newFeatureDesc').value;
     
     if (title && desc) {
-        serverData.features.push({ title, desc });
-        saveData();
-        updateDisplay();
-        document.getElementById('newFeatureTitle').value = '';
-        document.getElementById('newFeatureDesc').value = '';
-    } else {
-        alert('Preencha título e descrição!');
+        try {
+            const snapshot = await db.collection('features').get();
+            const ordem = snapshot.size;
+            
+            await db.collection('features').add({
+                title: title,
+                desc: desc,
+                ordem: ordem
+            });
+            
+            document.getElementById('newFeatureTitle').value = '';
+            document.getElementById('newFeatureDesc').value = '';
+            loadData();
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
     }
 }
 
-function removeFeature(index) {
-    if (confirm('Tem certeza que deseja remover esta feature?')) {
-        serverData.features.splice(index, 1);
-        saveData();
-        updateDisplay();
+async function deleteFeature(id) {
+    if (confirm('Remover esta feature?')) {
+        await db.collection('features').doc(id).delete();
+        loadData();
     }
 }
 
-function addRule() {
+async function addRule() {
     const rule = document.getElementById('newRule').value;
     if (rule) {
-        serverData.rules.push(rule);
-        saveData();
-        updateDisplay();
-        document.getElementById('newRule').value = '';
-    } else {
-        alert('Digite uma regra!');
+        try {
+            const snapshot = await db.collection('rules').get();
+            const ordem = snapshot.size;
+            
+            await db.collection('rules').add({
+                text: rule,
+                ordem: ordem
+            });
+            
+            document.getElementById('newRule').value = '';
+            loadData();
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
     }
 }
 
-function removeRule(index) {
-    if (confirm('Tem certeza que deseja remover esta regra?')) {
-        serverData.rules.splice(index, 1);
-        saveData();
-        updateDisplay();
+async function deleteRule(id) {
+    if (confirm('Remover esta regra?')) {
+        await db.collection('rules').doc(id).delete();
+        loadData();
     }
 }
 
-function addImage() {
+async function addImage() {
     const url = document.getElementById('newImageUrl').value;
     if (url) {
-        serverData.images.push(url);
-        saveData();
-        updateDisplay();
-        document.getElementById('newImageUrl').value = '';
-    } else {
-        alert('Digite uma URL válida!');
+        try {
+            const snapshot = await db.collection('images').get();
+            const ordem = snapshot.size;
+            
+            await db.collection('images').add({
+                url: url,
+                ordem: ordem
+            });
+            
+            document.getElementById('newImageUrl').value = '';
+            loadData();
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
     }
 }
 
-function removeImage(index) {
-    if (confirm('Tem certeza que deseja remover esta imagem?')) {
-        serverData.images.splice(index, 1);
-        saveData();
-        updateDisplay();
-    }
-}
-
-function saveAllChanges() {
-    serverData.siteTitle = document.getElementById('editSiteTitle').value;
-    serverData.siteDescription = document.getElementById('editSiteDescription').value;
-    serverData.ip = document.getElementById('editServerIP').value;
-    serverData.version = document.getElementById('editVersion').value;
-    serverData.about = document.getElementById('editAbout').value;
-    serverData.discord = document.getElementById('editDiscord').value;
-    serverData.email = document.getElementById('editEmail').value;
-    serverData.footer = document.getElementById('editFooter').value;
-    
-    saveData();
-    updateDisplay();
-    alert('✅ Todas as alterações foram salvas!');
-}
-
-function resetToDefault() {
-    if (confirm('Tem certeza que deseja restaurar os dados padrão? Todas as alterações serão perdidas.')) {
-        localStorage.removeItem('draxenbr_data');
-        location.reload();
+async function deleteImage(id) {
+    if (confirm('Remover esta imagem?')) {
+        await db.collection('images').doc(id).delete();
+        loadData();
     }
 }
 
 function copyIP() {
-    navigator.clipboard.writeText(serverData.ip).then(() => {
-        alert("IP copiado! 🎮\n" + serverData.ip);
+    const ip = document.getElementById('server-ip-display').textContent;
+    navigator.clipboard.writeText(ip).then(() => {
+        alert("IP copiado: " + ip);
     });
 }
 
 function updatePlayers() {
-    const playersElement = document.getElementById('players');
-    const online = Math.floor(Math.random() * 100);
-    playersElement.textContent = online;
+    document.getElementById('players').textContent = Math.floor(Math.random() * 100);
 }
 
 // Inicialização
-loadSavedData();
+loadData();
 setInterval(updatePlayers, 30000);
 updatePlayers();
 
-// Rolagem suave
 document.querySelectorAll('nav a').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
-        const targetId = link.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
-        
-        if (targetElement) {
-            targetElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) target.scrollIntoView({behavior: 'smooth'});
     });
 });
 
-// Fechar modais com ESC
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        hideAllModals();
-    }
+    if (e.key === 'Escape') hideAllModals();
 });
