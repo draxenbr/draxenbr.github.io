@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DraxenBR - Servidor Minecraft</title>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <header>
         <h1 id="site-title">⚡ DraxenBR ⚡</h1>
-        <p id="site-description">O servidor mais épico de Minecraft!</p>
+        <p id="site-description">Carregando...</p>
     </header>
     
     <nav id="main-nav">
@@ -19,189 +23,132 @@
         <a href="#galeria">Galeria</a>
         <a href="#regras">Regras</a>
         <a href="#contato">Contato</a>
-        <a href="#discord">Discord</a>
     </nav>
     
     <div class="container">
-        <!-- Informações do servidor -->
         <section class="server-info" id="home">
-            <div class="section-header">
-                <h2 id="home-title">📊 Status do Servidor</h2>
-            </div>
-            <p id="server-version-display">Versão: <span id="version-text">1.20.4</span></p>
+            <h2>📊 Status do Servidor</h2>
+            <p>Versão: <span id="version-text">Carregando...</span></p>
             <p>Jogadores Online: <span id="players">0</span>/100</p>
-            
             <div class="server-ip" onclick="copyIP()">
-                📋 IP: <span id="server-ip-display">sp-16.raze.host:25625</span>
+                📋 IP: <span id="server-ip-display">Carregando...</span>
             </div>
-            
             <p>Clique no IP para copiar!</p>
-            
             <div style="text-align: center; margin-top: 20px;">
                 <a href="#" class="btn" onclick="copyIP()">🎮 COPIAR IP</a>
             </div>
         </section>
         
-        <!-- Sobre o servidor -->
         <section class="server-info" id="sobre">
-            <div class="section-header">
-                <h2 id="about-title">🌟 Sobre o Servidor</h2>
-            </div>
-            <p id="about-text">DraxenBR é um servidor feito para a comunidade brasileira, com foco em diversão e amizade! Temos diversos modos de jogo e eventos especiais.</p>
+            <h2>🌟 Sobre o Servidor</h2>
+            <p id="about-text">Carregando...</p>
         </section>
         
-        <!-- Features/Recursos -->
         <section class="server-info" id="features">
-            <div class="section-header">
-                <h2 id="features-title">🎯 Nossos Recursos</h2>
-            </div>
-            <div class="features" id="features-container">
-                <!-- Features serão carregadas via JavaScript -->
-            </div>
+            <h2>🎯 Nossos Recursos</h2>
+            <div class="features" id="features-container"></div>
         </section>
         
-        <!-- Galeria -->
         <section class="server-info" id="galeria">
-            <div class="section-header">
-                <h2 id="gallery-title">📸 Galeria do Servidor</h2>
-            </div>
-            <div class="gallery" id="gallery-container">
-                <!-- Imagens serão carregadas via JavaScript -->
-            </div>
+            <h2>📸 Galeria do Servidor</h2>
+            <div class="gallery" id="gallery-container"></div>
         </section>
         
-        <!-- Regras -->
         <section class="server-info" id="regras">
-            <div class="section-header">
-                <h2 id="rules-title">📜 Regras do Servidor</h2>
-            </div>
-            <ul id="rules-container" style="margin-left: 20px; line-height: 2;">
-                <!-- Regras serão carregadas via JavaScript -->
-            </ul>
+            <h2>📜 Regras do Servidor</h2>
+            <ul id="rules-container" style="margin-left: 20px; line-height: 2;"></ul>
         </section>
         
-        <!-- Contato e Discord -->
         <section class="server-info" id="contato">
-            <div class="section-header">
-                <h2 id="contact-title">📞 Contato & Discord</h2>
-            </div>
-            <p>Discord: <a href="https://discord.gg/eQ4exVGPJw" target="_blank" id="discord-link" style="color: #ff6b6b;">https://discord.gg/eQ4exVGPJw</a></p>
-            <p>Email: <span id="contact-email">contato@draxenbr.com</span></p>
+            <h2>📞 Contato</h2>
+            <p>Discord: <a href="#" target="_blank" id="discord-link">Carregando...</a></p>
+            <p>Email: <span id="contact-email">Carregando...</span></p>
             <div style="text-align: center; margin-top: 20px;">
-                <a href="https://discord.gg/eQ4exVGPJw" target="_blank" class="btn">💬 ENTRAR NO DISCORD</a>
+                <a href="#" target="_blank" class="btn" id="discord-button">💬 ENTRAR NO DISCORD</a>
             </div>
         </section>
     </div>
     
     <footer>
-        <p id="footer-text">© 2024 DraxenBR. Todos os direitos reservados.</p>
+        <p id="footer-text">Carregando...</p>
     </footer>
     
-    <!-- Botão do Admin -->
-    <button class="admin-btn" onclick="showAdminLogin()" id="adminBtn">👑</button>
-    
-    <!-- Overlay -->
+    <button class="admin-btn" onclick="showAdminLogin()">👑</button>
     <div class="overlay" id="overlay" onclick="hideAllModals()"></div>
     
-    <!-- Login Modal -->
     <div id="adminLogin" class="admin-login" style="display: none;">
-        <h3 style="color: #ff6b6b; margin-bottom: 20px;">🔐 Login Administrativo</h3>
+        <h3>🔐 Login Administrativo</h3>
         <input type="password" id="adminPassword" placeholder="Digite a senha...">
         <button class="btn" onclick="checkAdminPassword()">Entrar</button>
         <button class="btn btn-danger" onclick="hideAdminLogin()">Cancelar</button>
-        <p style="margin-top: 10px; font-size: 0.8em; color: #999;">Senha removida apenas para admins</p>
     </div>
     
-    <!-- Painel Admin -->
     <div class="admin-panel" id="adminPanel">
         <div class="admin-header">
-            <h2>👑 Painel Administrativo - DraxenBR</h2>
+            <h2>👑 Painel Administrativo</h2>
             <button class="btn btn-danger" onclick="toggleAdmin()">Fechar</button>
         </div>
-        
         <div class="admin-form">
-            <!-- Informações Gerais -->
             <h3>📝 Informações Gerais</h3>
-            
             <div class="form-group">
                 <label>Título do Site:</label>
-                <input type="text" id="editSiteTitle" placeholder="Título do site...">
+                <input type="text" id="editSiteTitle">
             </div>
-            
             <div class="form-group">
-                <label>Descrição do Site:</label>
-                <input type="text" id="editSiteDescription" placeholder="Descrição do site...">
+                <label>Descrição:</label>
+                <input type="text" id="editSiteDescription">
             </div>
-            
             <div class="form-group">
                 <label>IP do Servidor:</label>
-                <input type="text" id="editServerIP" value="sp-16.raze.host:25625">
+                <input type="text" id="editServerIP">
             </div>
-            
             <div class="form-group">
-                <label>Versão do Minecraft:</label>
-                <input type="text" id="editVersion" value="1.20.4">
+                <label>Versão:</label>
+                <input type="text" id="editVersion">
             </div>
-            
             <div class="form-group">
                 <label>Sobre o Servidor:</label>
-                <textarea id="editAbout" rows="3">DraxenBR é um servidor feito para a comunidade brasileira, com foco em diversão e amizade! Temos diversos modos de jogo e eventos especiais.</textarea>
+                <textarea id="editAbout" rows="3"></textarea>
             </div>
-            
             <div class="form-group">
                 <label>Link do Discord:</label>
-                <input type="url" id="editDiscord" value="https://discord.gg/eQ4exVGPJw">
+                <input type="url" id="editDiscord">
             </div>
-            
             <div class="form-group">
-                <label>Email de Contato:</label>
-                <input type="email" id="editEmail" value="contato@draxenbr.com">
+                <label>Email:</label>
+                <input type="email" id="editEmail">
             </div>
-            
             <div class="form-group">
-                <label>Texto do Rodapé:</label>
-                <input type="text" id="editFooter" value="© 2024 DraxenBR. Todos os direitos reservados.">
+                <label>Rodapé:</label>
+                <input type="text" id="editFooter">
             </div>
             
-            <!-- Gerenciamento de Features -->
-            <h3 style="margin-top: 20px;">🎯 Gerenciar Features</h3>
+            <h3>🎯 Features</h3>
             <div id="features-list"></div>
-            
             <div class="form-group">
-                <label>Nova Feature:</label>
-                <input type="text" id="newFeatureTitle" placeholder="Título da feature...">
-                <textarea id="newFeatureDesc" rows="2" placeholder="Descrição da feature..." style="margin-top: 10px;"></textarea>
-                <button class="btn btn-success" onclick="addFeature()" style="margin-top: 10px;">Adicionar Feature</button>
+                <input type="text" id="newFeatureTitle" placeholder="Título">
+                <textarea id="newFeatureDesc" rows="2" placeholder="Descrição"></textarea>
+                <button class="btn btn-success" onclick="addFeature()">Adicionar</button>
             </div>
             
-            <!-- Gerenciamento de Regras -->
-            <h3 style="margin-top: 20px;">📜 Gerenciar Regras</h3>
+            <h3>📜 Regras</h3>
             <div id="rules-list"></div>
-            
             <div class="form-group">
-                <label>Nova Regra:</label>
-                <input type="text" id="newRule" placeholder="Digite a nova regra...">
-                <button class="btn btn-success" onclick="addRule()" style="margin-top: 10px;">Adicionar Regra</button>
+                <input type="text" id="newRule" placeholder="Nova regra">
+                <button class="btn btn-success" onclick="addRule()">Adicionar</button>
             </div>
             
-            <!-- Gerenciamento da Galeria -->
-            <h3 style="margin-top: 20px;">📸 Gerenciar Galeria</h3>
+            <h3>📸 Galeria</h3>
             <div id="images-list"></div>
-            
             <div class="form-group">
-                <label>Adicionar Imagem (URL):</label>
-                <input type="url" id="newImageUrl" placeholder="https://...">
-                <button class="btn btn-success" onclick="addImage()" style="margin-top: 10px;">Adicionar Imagem</button>
+                <input type="url" id="newImageUrl" placeholder="URL da imagem">
+                <button class="btn btn-success" onclick="addImage()">Adicionar</button>
             </div>
             
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-success" onclick="saveAllChanges()" style="flex: 1;">💾 Salvar Todas Alterações</button>
-                <button class="btn btn-danger" onclick="resetToDefault()" style="flex: 1;">↺ Restaurar Padrão</button>
-            </div>
+            <button class="btn btn-success" onclick="saveAllChanges()">💾 Salvar no Firebase (para todos)</button>
         </div>
     </div>
     
     <script src="script.js"></script>
 </body>
 </html>
-
