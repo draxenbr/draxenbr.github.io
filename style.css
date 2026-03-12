@@ -5,15 +5,14 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, #2a1a3a, #1a0f24);
     color: white;
     min-height: 100vh;
 }
 
-/* Cabeçalho */
 header {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0,0,0,0.5);
     padding: 20px;
     text-align: center;
     border-bottom: 3px solid #ff6b6b;
@@ -21,28 +20,35 @@ header {
 
 header h1 {
     font-size: 2.5em;
-    margin-bottom: 10px;
     color: #ff6b6b;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
-/* Menu de navegação */
+/* Menu de navegação - AGORA RESPONSIVO */
 nav {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0,0,0,0.3);
     padding: 15px;
     text-align: center;
     position: sticky;
     top: 0;
     z-index: 100;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
 }
 
 nav a {
     color: white;
     text-decoration: none;
     padding: 10px 20px;
-    margin: 0 5px;
     border-radius: 5px;
     transition: background 0.3s;
+    font-size: 1em;
+    flex-shrink: 0;
 }
 
 nav a:hover {
@@ -58,12 +64,12 @@ nav a:hover {
 
 /* Seção do servidor */
 .server-info {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255,255,255,0.1);
     border-radius: 10px;
     padding: 30px;
     margin-bottom: 30px;
     backdrop-filter: blur(5px);
-    position: relative;
+    word-wrap: break-word;
 }
 
 .server-ip {
@@ -71,17 +77,18 @@ nav a:hover {
     padding: 15px;
     border-radius: 5px;
     text-align: center;
-    font-size: 1.5em;
+    font-size: 1.2em;
     margin: 20px 0;
     cursor: pointer;
     transition: transform 0.3s;
+    word-break: break-all;
 }
 
 .server-ip:hover {
     transform: scale(1.02);
 }
 
-/* Cards de features */
+/* Cards de features - GRADE RESPONSIVA */
 .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -90,17 +97,22 @@ nav a:hover {
 }
 
 .feature-card {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0,0,0,0.3);
     border-radius: 10px;
     padding: 20px;
     text-align: center;
     border: 1px solid #ff6b6b;
-    position: relative;
+    transition: transform 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
 }
 
 .feature-card h3 {
     color: #ff6b6b;
     margin-bottom: 10px;
+    font-size: 1.3em;
 }
 
 /* Botões */
@@ -112,59 +124,45 @@ nav a:hover {
     text-decoration: none;
     border-radius: 5px;
     font-weight: bold;
-    transition: background 0.3s;
     border: none;
     cursor: pointer;
     margin: 5px;
+    font-size: 1em;
+    transition: background 0.3s;
 }
 
 .btn:hover {
     background: #ff5252;
 }
 
-.btn-small {
-    padding: 5px 10px;
-    font-size: 0.9em;
-}
-
 .btn-danger {
     background: #dc3545;
-}
-
-.btn-danger:hover {
-    background: #c82333;
 }
 
 .btn-success {
     background: #28a745;
 }
 
-.btn-success:hover {
-    background: #218838;
-}
-
-/* Rodapé */
 footer {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0,0,0,0.5);
     text-align: center;
     padding: 20px;
     margin-top: 50px;
 }
 
-/* Estilo do Admin */
+/* PAINEL ADMIN - RESPONSIVO */
 .admin-panel {
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(0,0,0,0.95);
     border-radius: 10px;
-    padding: 30px;
-    margin-top: 30px;
+    padding: 20px;
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 90%;
+    width: 95%;
     max-width: 800px;
-    max-height: 80vh;
+    max-height: 90vh;
     overflow-y: auto;
     z-index: 2000;
     border: 2px solid #ff6b6b;
@@ -174,58 +172,11 @@ footer {
     display: block;
 }
 
-.admin-form {
-    display: grid;
-    gap: 20px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    margin-bottom: 5px;
-    color: #ff6b6b;
-    font-weight: bold;
-}
-
-.form-group input, .form-group textarea {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ff6b6b;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    font-size: 1em;
-}
-
-.form-group input:focus, .form-group textarea:focus {
-    outline: none;
-    border-color: #ff5252;
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #ff6b6b;
-    position: sticky;
-    top: 0;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 10;
-}
-
 .admin-login {
     text-align: center;
-    padding: 30px;
-    background: rgba(0, 0, 0, 0.95);
+    padding: 25px;
+    background: rgba(0,0,0,0.95);
     border-radius: 10px;
-    max-width: 400px;
-    margin: 20px auto;
     position: fixed;
     top: 50%;
     left: 50%;
@@ -233,6 +184,7 @@ footer {
     z-index: 2001;
     border: 2px solid #ff6b6b;
     width: 90%;
+    max-width: 400px;
 }
 
 .admin-login input {
@@ -241,7 +193,7 @@ footer {
     width: 100%;
     border-radius: 5px;
     border: 1px solid #ff6b6b;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255,255,255,0.1);
     color: white;
     font-size: 1em;
 }
@@ -253,11 +205,10 @@ footer {
     background: #ff6b6b;
     color: white;
     border: none;
-    padding: 15px;
     border-radius: 50%;
     width: 60px;
     height: 60px;
-    font-size: 24px;
+    font-size: 28px;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     z-index: 1000;
@@ -265,16 +216,21 @@ footer {
 }
 
 .admin-btn:hover {
-    background: #ff5252;
     transform: scale(1.1);
 }
 
-/* Galeria */
+/* GALERIA RESPONSIVA */
 .gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px;
     margin: 20px 0;
+}
+
+@media (min-width: 768px) {
+    .gallery {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
 }
 
 .gallery-item {
@@ -282,6 +238,7 @@ footer {
     border-radius: 10px;
     overflow: hidden;
     aspect-ratio: 16/9;
+    cursor: pointer;
 }
 
 .gallery-item img {
@@ -295,47 +252,6 @@ footer {
     transform: scale(1.1);
 }
 
-.remove-image {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(220, 53, 69, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    display: none;
-    font-size: 18px;
-    font-weight: bold;
-    z-index: 10;
-}
-
-.admin-mode .remove-image {
-    display: block;
-}
-
-/* Lista de itens editáveis */
-.editable-item {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.editable-item-content {
-    flex: 1;
-}
-
-.editable-item-actions {
-    display: flex;
-    gap: 5px;
-}
-
 /* Overlay */
 .overlay {
     display: none;
@@ -344,7 +260,7 @@ footer {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0,0,0,0.7);
     z-index: 1999;
 }
 
@@ -352,30 +268,149 @@ footer {
     display: block;
 }
 
-/* Seções editáveis */
-.edit-icon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #ff6b6b;
+/* Formulários */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #ff6b6b;
+    font-weight: bold;
+    font-size: 0.95em;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ff6b6b;
+    background: rgba(255,255,255,0.1);
     color: white;
-    width: 30px;
-    height: 30px;
+    font-size: 1em;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: #ff5252;
+    background: rgba(255,255,255,0.15);
+}
+
+/* Itens editáveis */
+.editable-item {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+@media (min-width: 768px) {
+    .editable-item {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.editable-item-content {
+    flex: 1;
+    word-break: break-word;
+}
+
+.editable-item-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Botão remover imagem */
+.remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
     border-radius: 50%;
-    display: none;
-    justify-content: center;
-    align-items: center;
+    width: 35px;
+    height: 35px;
     cursor: pointer;
-    font-size: 16px;
+    display: none;
+    font-size: 20px;
+    font-weight: bold;
+    z-index: 10;
+    transition: background 0.3s;
 }
 
-.admin-mode .edit-icon {
-    display: flex;
+.remove-image:hover {
+    background: rgba(220, 53, 69, 1);
 }
 
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+.admin-mode .remove-image {
+    display: block;
+}
+
+/* Ajustes para telas pequenas */
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .server-ip {
+        font-size: 1em;
+        padding: 12px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.9em;
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .admin-panel {
+        padding: 15px;
+        width: 98%;
+    }
+    
+    .admin-login {
+        padding: 20px;
+    }
+    
+    .feature-card {
+        padding: 15px;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.2em;
+    }
+}
+
+/* Ajuste para links longos */
+a {
+    word-break: break-all;
+    color: #ff6b6b;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ff6b6b;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff5252;
 }
