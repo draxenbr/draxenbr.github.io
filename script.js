@@ -1,4 +1,4 @@
-// CONFIGURAÇÃO DO FIREBASE - COLE A SUA AQUI!
+// CONFIGURAÇÃO DO FIREBASE - USE A SUA AQUI!
 const firebaseConfig = {
     apiKey: "AIzaSyBZ_3iMIlOA09AptniHlZCwWKBu6Ci_rO8",
     authDomain: "draxenbr-2d193.firebaseapp.com",
@@ -26,7 +26,13 @@ auth.onAuthStateChanged((user) => {
         isAdminMode = true;
         document.body.classList.add('admin-mode');
         document.getElementById('adminPanel').classList.add('active');
+        document.getElementById('overlay').classList.remove('active');
         loadData();
+    } else {
+        // Usuário não está logado
+        isAdminMode = false;
+        document.body.classList.remove('admin-mode');
+        document.getElementById('adminPanel').classList.remove('active');
     }
 });
 
@@ -40,6 +46,14 @@ function hideLoginModal() {
     document.getElementById('overlay').classList.remove('active');
     document.getElementById('loginModal').style.display = 'none';
     document.getElementById('loginError').style.display = 'none';
+}
+
+function hideAllModals() {
+    hideLoginModal();
+    if (isAdminMode) {
+        document.getElementById('adminPanel').classList.remove('active');
+        document.body.classList.remove('admin-mode');
+    }
 }
 
 async function loginWithEmail() {
@@ -66,16 +80,6 @@ function logout() {
     });
 }
 
-// Modificar a função showAdminLogin para mostrar o modal
-function showAdminLogin() {
-    showLoginModal();
-}
-
-// Modificar toggleAdmin para fazer logout
-function toggleAdmin() {
-    logout();
-}
-
 // Carregar dados do Firebase
 async function loadData() {
     try {
@@ -87,7 +91,7 @@ async function loadData() {
             document.getElementById('site-description').textContent = data.siteDescription || 'O servidor mais épico de Minecraft!';
             document.getElementById('server-ip-display').textContent = data.ip || 'sp-16.raze.host:25625';
             document.getElementById('version-text').textContent = data.version || '1.20.4';
-            document.getElementById('about-text').textContent = data.about || 'DraxenBR é um servidor feito para a comunidade brasileira...';
+            document.getElementById('about-text').textContent = data.about || 'DraxenBR é um servidor feito para a comunidade brasileira, com foco em diversão e amizade! Temos diversos modos de jogo e eventos especiais.';
             document.getElementById('discord-link').textContent = data.discord || 'https://discord.gg/eQ4exVGPJw';
             document.getElementById('discord-link').href = data.discord || 'https://discord.gg/eQ4exVGPJw';
             document.getElementById('discord-button').href = data.discord || 'https://discord.gg/eQ4exVGPJw';
@@ -181,7 +185,7 @@ async function loadData() {
     }
 }
 
-// Funções de salvamento (mantém iguais)
+// Funções de salvamento
 async function saveAllChanges() {
     try {
         await db.collection('config').doc('geral').set({
@@ -314,6 +318,5 @@ document.querySelectorAll('nav a').forEach(link => {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         hideLoginModal();
-        if (isAdminMode) logout();
     }
 });
