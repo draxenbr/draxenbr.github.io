@@ -9,6 +9,7 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
     <header>
@@ -76,17 +77,20 @@
     <button class="admin-btn" onclick="showAdminLogin()">👑</button>
     <div class="overlay" id="overlay" onclick="hideAllModals()"></div>
     
-    <div id="adminLogin" class="admin-login" style="display: none;">
+    <!-- Modal de Login Seguro -->
+    <div id="loginModal" class="admin-login" style="display: none;">
         <h3>🔐 Login Administrativo</h3>
-        <input type="password" id="adminPassword" placeholder="Digite a senha...">
-        <button class="btn" onclick="checkAdminPassword()">Entrar</button>
-        <button class="btn btn-danger" onclick="hideAdminLogin()">Cancelar</button>
+        <input type="email" id="loginEmail" placeholder="E-mail" value="admin@draxenbr.com">
+        <input type="password" id="loginPassword" placeholder="Senha">
+        <button class="btn" onclick="loginWithEmail()">Entrar</button>
+        <button class="btn btn-danger" onclick="hideLoginModal()">Cancelar</button>
+        <p id="loginError" style="color: #ff6b6b; display: none;">E-mail ou senha inválidos</p>
     </div>
     
     <div class="admin-panel" id="adminPanel">
         <div class="admin-header">
             <h2>👑 Painel Administrativo</h2>
-            <button class="btn btn-danger" onclick="toggleAdmin()">Fechar</button>
+            <button class="btn btn-danger" onclick="toggleAdmin()">Sair</button>
         </div>
         <div class="admin-form">
             <h3>📝 Informações Gerais</h3>
