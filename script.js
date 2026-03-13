@@ -1,4 +1,4 @@
-// CONFIGURAÇÃO DO FIREBASE - JÁ ESTÁ COM SEUS DADOS!
+// CONFIGURAÇÃO DO FIREBASE - COLE A SUA AQUI!
 const firebaseConfig = {
     apiKey: "AIzaSyBZ_3iMIlOA09AptniHlZCwWKBu6Ci_rO8",
     authDomain: "draxenbr-2d193.firebaseapp.com",
@@ -12,8 +12,69 @@ const firebaseConfig = {
 // Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 let isAdminMode = false;
+
+// Configurar persistência de login
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+// Verificar se já está logado
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        // Usuário está logado
+        isAdminMode = true;
+        document.body.classList.add('admin-mode');
+        document.getElementById('adminPanel').classList.add('active');
+        loadData();
+    }
+});
+
+// Funções de Login
+function showLoginModal() {
+    document.getElementById('overlay').classList.add('active');
+    document.getElementById('loginModal').style.display = 'block';
+}
+
+function hideLoginModal() {
+    document.getElementById('overlay').classList.remove('active');
+    document.getElementById('loginModal').style.display = 'none';
+    document.getElementById('loginError').style.display = 'none';
+}
+
+async function loginWithEmail() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+        hideLoginModal();
+        // Login bem-sucedido - onAuthStateChanged vai cuidar do resto
+    } catch (error) {
+        document.getElementById('loginError').style.display = 'block';
+        console.error('Erro no login:', error);
+    }
+}
+
+function logout() {
+    auth.signOut().then(() => {
+        isAdminMode = false;
+        document.body.classList.remove('admin-mode');
+        document.getElementById('adminPanel').classList.remove('active');
+        document.getElementById('overlay').classList.remove('active');
+        loadData(); // Recarrega sem modo admin
+    });
+}
+
+// Modificar a função showAdminLogin para mostrar o modal
+function showAdminLogin() {
+    showLoginModal();
+}
+
+// Modificar toggleAdmin para fazer logout
+function toggleAdmin() {
+    logout();
+}
 
 // Carregar dados do Firebase
 async function loadData() {
@@ -52,7 +113,7 @@ async function loadData() {
         const featuresList = document.getElementById('features-list');
         if (featuresList) featuresList.innerHTML = '';
         
-        featuresSnapshot.forEach((doc, index) => {
+        featuresSnapshot.forEach((doc) => {
             const f = doc.data();
             featuresContainer.innerHTML += `
                 <div class="feature-card">
@@ -120,44 +181,7 @@ async function loadData() {
     }
 }
 
-// Funções do Admin
-function showAdminLogin() {
-    document.getElementById('overlay').classList.add('active');
-    document.getElementById('adminLogin').style.display = 'block';
-}
-
-function hideAdminLogin() {
-    document.getElementById('overlay').classList.remove('active');
-    document.getElementById('adminLogin').style.display = 'none';
-}
-
-function hideAllModals() {
-    hideAdminLogin();
-    if (isAdminMode) toggleAdmin();
-}
-
-function checkAdminPassword() {
-    const password = document.getElementById('adminPassword').value;
-    if (password === 'draxen2024') {
-        hideAdminLogin();
-        isAdminMode = true;
-        document.body.classList.add('admin-mode');
-        document.getElementById('adminPanel').classList.add('active');
-        loadData();
-        document.getElementById('adminPassword').value = '';
-    } else {
-        alert('Senha incorreta!');
-        document.getElementById('adminPassword').value = '';
-    }
-}
-
-function toggleAdmin() {
-    isAdminMode = false;
-    document.body.classList.remove('admin-mode');
-    document.getElementById('adminPanel').classList.remove('active');
-    document.getElementById('overlay').classList.remove('active');
-}
-
+// Funções de salvamento (mantém iguais)
 async function saveAllChanges() {
     try {
         await db.collection('config').doc('geral').set({
@@ -288,5 +312,8 @@ document.querySelectorAll('nav a').forEach(link => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') hideAllModals();
+    if (e.key === 'Escape') {
+        hideLoginModal();
+        if (isAdminMode) logout();
+    }
 });
