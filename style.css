@@ -6,27 +6,71 @@
 
 body {
     font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #2a1a3a, #1a0f24);
+    background: #000000;
     color: white;
     min-height: 100vh;
 }
 
+/* Cabeçalho com animações */
 header {
-    background: rgba(0,0,0,0.5);
-    padding: 20px;
+    background: linear-gradient(135deg, #111111, #000000);
+    padding: 30px 20px;
     text-align: center;
-    border-bottom: 3px solid #ff6b6b;
+    border-bottom: 3px solid #39ff14;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
 }
 
-header h1 {
-    font-size: 2.5em;
-    color: #ff6b6b;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+/* Título animado - neon pulsante com reflexo */
+.neon-title {
+    font-size: 3.5em;
+    color: #39ff14;
+    text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14, 0 0 30px #39ff14;
+    animation: neonPulse 2s ease-in-out infinite;
+    position: relative;
+    display: inline-block;
+    padding: 0 20px;
 }
 
-/* Menu de navegação - AGORA RESPONSIVO */
+.neon-title::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(57, 255, 20, 0.2), 
+        transparent);
+    animation: shine 3s infinite;
+    pointer-events: none;
+}
+
+@keyframes neonPulse {
+    0%, 100% {
+        text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14, 0 0 30px #39ff14;
+        color: #39ff14;
+    }
+    50% {
+        text-shadow: 0 0 20px #7fff00, 0 0 40px #7fff00, 0 0 50px #7fff00;
+        color: #7fff00;
+    }
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Menu de navegação */
 nav {
-    background: rgba(0,0,0,0.3);
+    background: #111111;
     padding: 15px;
     text-align: center;
     position: sticky;
@@ -35,10 +79,10 @@ nav {
     overflow-x: auto;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
     display: flex;
     justify-content: flex-start;
     gap: 10px;
+    border-bottom: 1px solid #39ff14;
 }
 
 nav a {
@@ -46,49 +90,73 @@ nav a {
     text-decoration: none;
     padding: 10px 20px;
     border-radius: 5px;
-    transition: background 0.3s;
+    transition: all 0.3s;
     font-size: 1em;
     flex-shrink: 0;
 }
 
 nav a:hover {
-    background: #ff6b6b;
+    background: #39ff14;
+    color: #000000;
+    box-shadow: 0 0 20px #39ff14;
+    transform: scale(1.05);
 }
 
-/* Container principal */
 .container {
     max-width: 1200px;
     margin: 30px auto;
     padding: 0 20px;
 }
 
-/* Seção do servidor */
+/* Cards com bordas neon */
 .server-info {
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
+    background: #111111;
+    border-radius: 15px;
     padding: 30px;
     margin-bottom: 30px;
-    backdrop-filter: blur(5px);
     word-wrap: break-word;
+    border: 1px solid #39ff14;
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+    transition: all 0.3s;
 }
 
+.server-info:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 30px rgba(57, 255, 20, 0.6);
+    border-color: #7fff00;
+}
+
+.server-info h2 {
+    color: #39ff14;
+    margin-bottom: 20px;
+    font-size: 2em;
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+}
+
+/* IP do servidor */
 .server-ip {
-    background: #ff6b6b;
+    background: #2e8b57;
     padding: 15px;
     border-radius: 5px;
     text-align: center;
     font-size: 1.2em;
     margin: 20px 0;
     cursor: pointer;
-    transition: transform 0.3s;
+    transition: all 0.3s;
     word-break: break-all;
+    color: white;
+    font-weight: bold;
+    border: 1px solid #39ff14;
 }
 
 .server-ip:hover {
+    background: #39ff14;
+    color: #000000;
     transform: scale(1.02);
+    box-shadow: 0 0 30px #39ff14;
 }
 
-/* Cards de features - GRADE RESPONSIVA */
+/* Cards de features */
 .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -97,75 +165,254 @@ nav a:hover {
 }
 
 .feature-card {
-    background: rgba(0,0,0,0.3);
+    background: #1a1a1a;
     border-radius: 10px;
     padding: 20px;
     text-align: center;
-    border: 1px solid #ff6b6b;
-    transition: transform 0.3s;
+    border: 1px solid #39ff14;
+    transition: all 0.3s;
 }
 
 .feature-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 0 25px #39ff14;
+    border-color: #7fff00;
 }
 
 .feature-card h3 {
-    color: #ff6b6b;
+    color: #39ff14;
     margin-bottom: 10px;
-    font-size: 1.3em;
+    text-shadow: 0 0 5px #39ff14;
 }
 
-/* Botões */
+/* Botões - efeito especial */
 .btn {
     display: inline-block;
     padding: 12px 30px;
-    background: #ff6b6b;
+    background: #2e8b57;
     color: white;
     text-decoration: none;
     border-radius: 5px;
     font-weight: bold;
-    border: none;
+    border: 1px solid #39ff14;
     cursor: pointer;
     margin: 5px;
-    font-size: 1em;
-    transition: background 0.3s;
+    transition: all 0.3s;
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
 }
 
 .btn:hover {
-    background: #ff5252;
+    background: #39ff14;
+    color: #000000;
+    transform: scale(1.08);
+    box-shadow: 0 0 30px #39ff14;
+    border-color: #7fff00;
+}
+
+/* Botões específicos */
+.ip-btn, .discord-btn, .download-btn {
+    font-size: 1.1em;
+    padding: 15px 40px;
 }
 
 .btn-danger {
-    background: #dc3545;
+    background: #8b2e2e;
+    border-color: #ff4444;
+}
+
+.btn-danger:hover {
+    background: #ff4444;
+    box-shadow: 0 0 30px #ff4444;
 }
 
 .btn-success {
-    background: #28a745;
+    background: #2e8b57;
 }
 
+/* Seção de vídeos */
+.video-category-title {
+    color: #39ff14;
+    margin: 30px 0 15px 0;
+    font-size: 1.8em;
+    text-shadow: 0 0 10px #39ff14;
+}
+
+.videos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.video-card {
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #39ff14;
+    transition: all 0.3s;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px #39ff14;
+}
+
+.video-card h4 {
+    color: #39ff14;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.video-card p {
+    color: #ccc;
+    margin-bottom: 15px;
+}
+
+.video-thumbnail {
+    width: 100%;
+    height: 160px;
+    background: #333;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-link {
+    display: inline-block;
+    padding: 8px 15px;
+    background: #2e8b57;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: all 0.3s;
+    border: 1px solid #39ff14;
+}
+
+.video-link:hover {
+    background: #39ff14;
+    color: #000000;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px #39ff14;
+}
+
+/* Wiki */
+.wiki-content {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #39ff14;
+    line-height: 1.6;
+}
+
+.wiki-content h1, .wiki-content h2, .wiki-content h3 {
+    color: #39ff14;
+    margin: 20px 0 10px 0;
+}
+
+.wiki-content p {
+    margin-bottom: 15px;
+}
+
+/* Galeria */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.gallery-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    border: 1px solid #39ff14;
+    transition: all 0.3s;
+}
+
+.gallery-item:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 25px #39ff14;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Rodapé */
 footer {
-    background: rgba(0,0,0,0.5);
+    background: #111111;
     text-align: center;
     padding: 20px;
     margin-top: 50px;
+    border-top: 1px solid #39ff14;
 }
 
-/* PAINEL ADMIN - RESPONSIVO */
+/* Coroa Admin animada */
+.admin-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #2e8b57;
+    color: white;
+    border: 2px solid #39ff14;
+    border-radius: 50%;
+    width: 65px;
+    height: 65px;
+    font-size: 32px;
+    cursor: pointer;
+    box-shadow: 0 0 20px #39ff14;
+    z-index: 1000;
+    transition: all 0.3s;
+    animation: crownPulse 2s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes crownPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px #39ff14;
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 40px #39ff14;
+    }
+}
+
+.admin-btn:hover {
+    background: #39ff14;
+    color: #000000;
+    animation: none;
+    transform: scale(1.15);
+}
+
+/* Painel Admin */
 .admin-panel {
-    background: rgba(0,0,0,0.95);
-    border-radius: 10px;
-    padding: 20px;
+    background: #111111;
+    border-radius: 15px;
+    padding: 25px;
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 95%;
-    max-width: 800px;
-    max-height: 90vh;
+    max-width: 900px;
+    max-height: 85vh;
     overflow-y: auto;
     z-index: 2000;
-    border: 2px solid #ff6b6b;
+    border: 2px solid #39ff14;
+    box-shadow: 0 0 50px rgba(57, 255, 20, 0.5);
 }
 
 .admin-panel.active {
@@ -174,15 +421,16 @@ footer {
 
 .admin-login {
     text-align: center;
-    padding: 25px;
-    background: rgba(0,0,0,0.95);
-    border-radius: 10px;
+    padding: 30px;
+    background: #111111;
+    border-radius: 15px;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 2001;
-    border: 2px solid #ff6b6b;
+    border: 2px solid #39ff14;
+    box-shadow: 0 0 50px rgba(57, 255, 20, 0.5);
     width: 90%;
     max-width: 400px;
 }
@@ -192,67 +440,11 @@ footer {
     margin: 15px 0;
     width: 100%;
     border-radius: 5px;
-    border: 1px solid #ff6b6b;
-    background: rgba(255,255,255,0.1);
+    border: 1px solid #39ff14;
+    background: #222;
     color: white;
-    font-size: 1em;
 }
 
-.admin-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    font-size: 28px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 1000;
-    transition: transform 0.3s;
-}
-
-.admin-btn:hover {
-    transform: scale(1.1);
-}
-
-/* GALERIA RESPONSIVA */
-.gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
-}
-
-@media (min-width: 768px) {
-    .gallery {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
-}
-
-.gallery-item {
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-    aspect-ratio: 16/9;
-    cursor: pointer;
-}
-
-.gallery-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s;
-}
-
-.gallery-item:hover img {
-    transform: scale(1.1);
-}
-
-/* Overlay */
 .overlay {
     display: none;
     position: fixed;
@@ -260,7 +452,7 @@ footer {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.8);
     z-index: 1999;
 }
 
@@ -270,42 +462,35 @@ footer {
 
 /* Formulários */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 5px;
-    color: #ff6b6b;
+    color: #39ff14;
     font-weight: bold;
-    font-size: 0.95em;
 }
 
 .form-group input, .form-group textarea {
     width: 100%;
     padding: 12px;
     border-radius: 5px;
-    border: 1px solid #ff6b6b;
-    background: rgba(255,255,255,0.1);
+    border: 1px solid #39ff14;
+    background: #222;
     color: white;
-    font-size: 1em;
-}
-
-.form-group input:focus, .form-group textarea:focus {
-    outline: none;
-    border-color: #ff5252;
-    background: rgba(255,255,255,0.15);
 }
 
 /* Itens editáveis */
 .editable-item {
-    background: rgba(255,255,255,0.05);
+    background: #1a1a1a;
     padding: 15px;
     border-radius: 5px;
     margin-bottom: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    border: 1px solid #39ff14;
 }
 
 @media (min-width: 768px) {
@@ -316,101 +501,21 @@ footer {
     }
 }
 
-.editable-item-content {
-    flex: 1;
-    word-break: break-word;
-}
-
-.editable-item-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-/* Botão remover imagem */
-.remove-image {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(220, 53, 69, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    cursor: pointer;
-    display: none;
-    font-size: 20px;
-    font-weight: bold;
-    z-index: 10;
-    transition: background 0.3s;
-}
-
-.remove-image:hover {
-    background: rgba(220, 53, 69, 1);
-}
-
-.admin-mode .remove-image {
-    display: block;
-}
-
-/* Ajustes para telas pequenas */
-@media (max-width: 480px) {
-    header h1 {
-        font-size: 2em;
-    }
-    
-    .server-ip {
-        font-size: 1em;
-        padding: 12px;
-    }
-    
-    .btn {
-        padding: 10px 20px;
-        font-size: 0.9em;
-        width: 100%;
-        margin: 5px 0;
-    }
-    
-    .admin-panel {
-        padding: 15px;
-        width: 98%;
-    }
-    
-    .admin-login {
-        padding: 20px;
-    }
-    
-    .feature-card {
-        padding: 15px;
-    }
-    
-    .feature-card h3 {
-        font-size: 1.2em;
-    }
-}
-
-/* Ajuste para links longos */
-a {
-    word-break: break-all;
-    color: #ff6b6b;
-}
-
 /* Scrollbar personalizada */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.1);
+    background: #111111;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #ff6b6b;
-    border-radius: 4px;
+    background: #39ff14;
+    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #ff5252;
+    background: #7fff00;
 }
