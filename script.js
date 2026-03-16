@@ -13,7 +13,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
-const storage = firebase.storage();
 
 let isAdminMode = false;
 
@@ -75,32 +74,22 @@ function logout() {
     });
 }
 
-// FUNÇÃO CORRIGIDA: Upload de Imagem para Galeria
-async function uploadImage() {
-    const file = document.getElementById('imageUpload').files[0];
-    if (!file) {
-        alert('Selecione uma imagem primeiro!');
-        return;
-    }
-    
-    if (file.size > 5 * 1024 * 1024) {
-        alert('A imagem deve ter no máximo 5MB!');
+// YouTube ID
+function getYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// ===== FUNÇÕES DA GALERIA =====
+async function addImage() {
+    const url = document.getElementById('newImageUrl').value;
+    if (!url) {
+        alert('Digite uma URL válida!');
         return;
     }
     
     try {
-        // Criar nome único para o arquivo
-        const fileName = `${Date.now()}_${file.name}`;
-        const storageRef = storage.ref();
-        const imageRef = storageRef.child(`galeria/${fileName}`);
-        
-        // Fazer upload
-        await imageRef.put(file);
-        
-        // Pegar URL da imagem
-        const url = await imageRef.getDownloadURL();
-        
-        // Salvar no Firestore
         const snapshot = await db.collection('images').get();
         const ordem = snapshot.size;
         
@@ -109,48 +98,27 @@ async function uploadImage() {
             ordem: ordem
         });
         
-        // Limpar input
-        document.getElementById('imageUpload').value = '';
-        
-        // Recarregar dados
-        await loadData();
-        
-        alert('✅ Imagem enviada com sucesso!');
+        document.getElementById('newImageUrl').value = '';
+        loadData();
+        alert('✅ Imagem adicionada!');
     } catch (error) {
-        console.error('Erro detalhado:', error);
-        alert('Erro ao enviar imagem: ' + error.message);
+        alert('Erro: ' + error.message);
     }
 }
 
-// FUNÇÃO CORRIGIDA: Upload de imagem para Wiki
-async function uploadWikiImage(file) {
-    if (!file) return null;
-    
-    if (file.size > 5 * 1024 * 1024) {
-        alert('A imagem deve ter no máximo 5MB!');
-        return null;
-    }
-    
-    try {
-        const fileName = `${Date.now()}_${file.name}`;
-        const storageRef = storage.ref();
-        const imageRef = storageRef.child(`wiki/${fileName}`);
-        
-        await imageRef.put(file);
-        return await imageRef.getDownloadURL();
-    } catch (error) {
-        console.error('Erro upload wiki:', error);
-        alert('Erro ao enviar imagem: ' + error.message);
-        return null;
+async function deleteImage(id) {
+    if (confirm('Remover esta imagem?')) {
+        await db.collection('images').doc(id).delete();
+        loadData();
     }
 }
 
-// FUNÇÃO CORRIGIDA: Adicionar artigo na Wiki
+// ===== FUNÇÕES DA WIKI =====
 async function addWikiArticle() {
     const title = document.getElementById('newWikiTitle').value;
     const desc = document.getElementById('newWikiDesc').value;
     const link = document.getElementById('newWikiLink').value;
-    const file = document.getElementById('wikiImageUpload').files[0];
+    const imageUrl = document.getElementById('newWikiImageUrl').value;
     
     if (!title || !desc) {
         alert('Preencha título e descrição!');
@@ -158,19 +126,9 @@ async function addWikiArticle() {
     }
     
     try {
-        let imageUrl = '';
-        
-        // Se tiver imagem, faz upload
-        if (file) {
-            imageUrl = await uploadWikiImage(file);
-            if (!imageUrl) return; // Se erro no upload, para
-        }
-        
-        // Pegar ordem atual
         const snapshot = await db.collection('wiki').get();
         const ordem = snapshot.size;
         
-        // Salvar no Firestore
         await db.collection('wiki').add({
             titulo: title,
             descricao: desc,
@@ -179,82 +137,26 @@ async function addWikiArticle() {
             ordem: ordem
         });
         
-        // Limpar campos
         document.getElementById('newWikiTitle').value = '';
         document.getElementById('newWikiDesc').value = '';
         document.getElementById('newWikiLink').value = '';
-        document.getElementById('wikiImageUpload').value = '';
+        document.getElementById('newWikiImageUrl').value = '';
         
-        // Recarregar
-        await loadData();
-        alert('✅ Artigo adicionado com sucesso!');
+        loadData();
+        alert('✅ Artigo adicionado!');
     } catch (error) {
-        console.error('Erro ao adicionar artigo:', error);
         alert('Erro: ' + error.message);
     }
 }
 
-// FUNÇÃO: Deletar artigo da Wiki
 async function deleteWikiArticle(id) {
     if (confirm('Remover este artigo?')) {
-        try {
-            await db.collection('wiki').doc(id).delete();
-            await loadData();
-        } catch (error) {
-            alert('Erro ao remover: ' + error.message);
-        }
+        await db.collection('wiki').doc(id).delete();
+        loadData();
     }
 }
 
-// FUNÇÃO: Deletar imagem da galeria
-async function deleteImage(id) {
-    if (confirm('Remover esta imagem?')) {
-        try {
-            await db.collection('images').doc(id).delete();
-            await loadData();
-        } catch (error) {
-            alert('Erro ao remover: ' + error.message);
-        }
-    }
-}
-
-// FUNÇÃO: Deletar vídeo
-async function deleteVideo(id) {
-    if (confirm('Remover este vídeo?')) {
-        try {
-            await db.collection('videos').doc(id).delete();
-            await loadData();
-        } catch (error) {
-            alert('Erro ao remover: ' + error.message);
-        }
-    }
-}
-
-// FUNÇÃO: Deletar feature
-async function deleteFeature(id) {
-    if (confirm('Remover esta feature?')) {
-        try {
-            await db.collection('features').doc(id).delete();
-            await loadData();
-        } catch (error) {
-            alert('Erro ao remover: ' + error.message);
-        }
-    }
-}
-
-// FUNÇÃO: Deletar regra
-async function deleteRule(id) {
-    if (confirm('Remover esta regra?')) {
-        try {
-            await db.collection('rules').doc(id).delete();
-            await loadData();
-        } catch (error) {
-            alert('Erro ao remover: ' + error.message);
-        }
-    }
-}
-
-// FUNÇÃO: Adicionar feature
+// ===== FUNÇÕES DAS FEATURES =====
 async function addFeature() {
     const title = document.getElementById('newFeatureTitle').value;
     const desc = document.getElementById('newFeatureDesc').value;
@@ -276,13 +178,20 @@ async function addFeature() {
         
         document.getElementById('newFeatureTitle').value = '';
         document.getElementById('newFeatureDesc').value = '';
-        await loadData();
+        loadData();
     } catch (error) {
         alert('Erro: ' + error.message);
     }
 }
 
-// FUNÇÃO: Adicionar regra
+async function deleteFeature(id) {
+    if (confirm('Remover esta feature?')) {
+        await db.collection('features').doc(id).delete();
+        loadData();
+    }
+}
+
+// ===== FUNÇÕES DAS REGRAS =====
 async function addRule() {
     const rule = document.getElementById('newRule').value;
     if (!rule) {
@@ -300,13 +209,20 @@ async function addRule() {
         });
         
         document.getElementById('newRule').value = '';
-        await loadData();
+        loadData();
     } catch (error) {
         alert('Erro: ' + error.message);
     }
 }
 
-// FUNÇÃO: Adicionar vídeo
+async function deleteRule(id) {
+    if (confirm('Remover esta regra?')) {
+        await db.collection('rules').doc(id).delete();
+        loadData();
+    }
+}
+
+// ===== FUNÇÕES DOS VÍDEOS =====
 async function addVideo(categoria) {
     let url, titulo, autor;
     
@@ -347,13 +263,20 @@ async function addVideo(categoria) {
             document.getElementById('newTutorialAuthor').value = '';
         }
         
-        await loadData();
+        loadData();
     } catch (error) {
         alert('Erro: ' + error.message);
     }
 }
 
-// FUNÇÃO: Salvar configurações gerais
+async function deleteVideo(id) {
+    if (confirm('Remover este vídeo?')) {
+        await db.collection('videos').doc(id).delete();
+        loadData();
+    }
+}
+
+// ===== FUNÇÕES DE CONFIGURAÇÃO =====
 async function saveAllChanges() {
     try {
         await db.collection('config').doc('geral').set({
@@ -369,13 +292,13 @@ async function saveAllChanges() {
         });
         
         alert('✅ Configurações salvas!');
-        await loadData();
+        loadData();
     } catch (error) {
         alert('Erro ao salvar: ' + error.message);
     }
 }
 
-// FUNÇÃO: Copiar IP
+// ===== FUNÇÕES DE UTILIDADE =====
 function copyIP() {
     const ip = document.getElementById('server-ip-display').textContent;
     navigator.clipboard.writeText(ip).then(() => {
@@ -383,12 +306,11 @@ function copyIP() {
     });
 }
 
-// FUNÇÃO: Atualizar jogadores online
 function updatePlayers() {
     document.getElementById('players').textContent = Math.floor(Math.random() * 100);
 }
 
-// FUNÇÃO: Carregar todos os dados
+// ===== FUNÇÃO PRINCIPAL DE CARREGAR DADOS =====
 async function loadData() {
     try {
         // Carregar configurações
@@ -396,7 +318,7 @@ async function loadData() {
         if (configDoc.exists) {
             const data = configDoc.data();
             document.getElementById('site-title').textContent = data.siteTitle || '⚡ DraxenBR ⚡';
-            document.getElementById('site-description').textContent = data.siteDescription || 'Servidor Minecraft';
+            document.getElementById('site-description').textContent = data.siteDescription || 'O servidor mais épico de Minecraft!';
             document.getElementById('server-ip-display').textContent = data.ip || 'sp-16.raze.host:25625';
             document.getElementById('version-text').textContent = data.version || '1.20.4';
             document.getElementById('about-text').textContent = data.about || 'Servidor Minecraft';
@@ -429,6 +351,9 @@ async function loadData() {
         const features = await db.collection('features').orderBy('ordem').get();
         const featuresContainer = document.getElementById('features-container');
         featuresContainer.innerHTML = '';
+        const featuresList = document.getElementById('features-list');
+        if (featuresList) featuresList.innerHTML = '';
+        
         features.forEach(doc => {
             const f = doc.data();
             featuresContainer.innerHTML += `
@@ -437,21 +362,44 @@ async function loadData() {
                     <p>${f.desc}</p>
                 </div>
             `;
+            
+            if (isAdminMode && featuresList) {
+                featuresList.innerHTML += `
+                    <div class="editable-item">
+                        <div><strong>${f.title}</strong><br><small>${f.desc}</small></div>
+                        <button class="btn btn-small btn-danger" onclick="deleteFeature('${doc.id}')">🗑️</button>
+                    </div>
+                `;
+            }
         });
         
         // Carregar regras
         const rules = await db.collection('rules').orderBy('ordem').get();
         const rulesContainer = document.getElementById('rules-container');
         rulesContainer.innerHTML = '';
+        const rulesList = document.getElementById('rules-list');
+        if (rulesList) rulesList.innerHTML = '';
+        
         rules.forEach(doc => {
             const r = doc.data();
             rulesContainer.innerHTML += `<li>${r.text}</li>`;
+            if (isAdminMode && rulesList) {
+                rulesList.innerHTML += `
+                    <div class="editable-item">
+                        <div>${r.text}</div>
+                        <button class="btn btn-small btn-danger" onclick="deleteRule('${doc.id}')">🗑️</button>
+                    </div>
+                `;
+            }
         });
         
-        // Carregar imagens
+        // Carregar imagens da galeria
         const images = await db.collection('images').orderBy('ordem').get();
         const galleryContainer = document.getElementById('gallery-container');
         galleryContainer.innerHTML = '';
+        const imagesList = document.getElementById('images-list');
+        if (imagesList) imagesList.innerHTML = '';
+        
         images.forEach(doc => {
             const img = doc.data().url;
             galleryContainer.innerHTML += `
@@ -459,6 +407,15 @@ async function loadData() {
                     <img src="${img}" alt="Screenshot">
                 </div>
             `;
+            
+            if (isAdminMode && imagesList) {
+                imagesList.innerHTML += `
+                    <div class="editable-item">
+                        <div><img src="${img}" style="width:50px; height:50px; object-fit:cover;"> ${img.substring(0,30)}...</div>
+                        <button class="btn btn-small btn-danger" onclick="deleteImage('${doc.id}')">🗑️</button>
+                    </div>
+                `;
+            }
         });
         
         // Carregar vídeos
@@ -468,56 +425,95 @@ async function loadData() {
         gameplaysContainer.innerHTML = '';
         tutoriaisContainer.innerHTML = '';
         
+        const gameplaysList = document.getElementById('gameplays-list');
+        const tutoriaisList = document.getElementById('tutoriais-list');
+        if (gameplaysList) gameplaysList.innerHTML = '';
+        if (tutoriaisList) tutoriaisList.innerHTML = '';
+        
         videos.forEach(doc => {
             const v = doc.data();
             const videoId = getYouTubeId(v.url);
-            const thumb = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : '';
+            const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : '';
             
-            const card = `
+            const videoCard = `
                 <div class="video-card">
-                    <div class="video-thumbnail"><img src="${thumb}" alt=""></div>
-                    <h4>${v.titulo || 'Vídeo'}</h4>
-                    <p>${v.autor || 'Desconhecido'}</p>
-                    <a href="${v.url}" target="_blank" class="video-link">Assistir</a>
+                    <div class="video-thumbnail">
+                        <img src="${thumbnailUrl}" alt="${v.titulo || 'Vídeo'}">
+                    </div>
+                    <h4>${v.titulo || 'Sem título'}</h4>
+                    <p>Por: ${v.autor || 'Desconhecido'}</p>
+                    <a href="${v.url}" target="_blank" class="video-link">🎬 ASSISTIR</a>
                 </div>
             `;
             
             if (v.categoria === 'gameplay') {
-                gameplaysContainer.innerHTML += card;
+                gameplaysContainer.innerHTML += videoCard;
             } else {
-                tutoriaisContainer.innerHTML += card;
+                tutoriaisContainer.innerHTML += videoCard;
+            }
+            
+            if (isAdminMode) {
+                const listItem = `
+                    <div class="editable-item">
+                        <div>
+                            <strong>${v.titulo || 'Sem título'}</strong><br>
+                            <small>${v.autor || 'Desconhecido'} - ${v.categoria}</small>
+                        </div>
+                        <button class="btn btn-small btn-danger" onclick="deleteVideo('${doc.id}')">🗑️</button>
+                    </div>
+                `;
+                
+                if (v.categoria === 'gameplay' && gameplaysList) {
+                    gameplaysList.innerHTML += listItem;
+                } else if (tutoriaisList) {
+                    tutoriaisList.innerHTML += listItem;
+                }
             }
         });
         
-        // Carregar wiki
+        // Carregar artigos da Wiki
         const wiki = await db.collection('wiki').orderBy('ordem').get();
         const wikiContainer = document.getElementById('wiki-articles');
         wikiContainer.innerHTML = '';
+        const wikiList = document.getElementById('wiki-list');
+        if (wikiList) wikiList.innerHTML = '';
         
         wiki.forEach(doc => {
             const w = doc.data();
-            wikiContainer.innerHTML += `
+            
+            const wikiArticle = `
                 <div class="wiki-article">
-                    ${w.imagem ? `<div class="wiki-article-image"><img src="${w.imagem}" alt=""></div>` : ''}
+                    ${w.imagem ? `
+                        <div class="wiki-article-image">
+                            <img src="${w.imagem}" alt="${w.titulo}">
+                        </div>
+                    ` : ''}
                     <div class="wiki-article-content">
                         <h3>${w.titulo}</h3>
                         <p>${w.descricao}</p>
-                        ${w.link ? `<a href="${w.link}" target="_blank" class="wiki-article-link">Saiba mais</a>` : ''}
+                        ${w.link ? `<a href="${w.link}" target="_blank" class="wiki-article-link">🔗 Saiba mais</a>` : ''}
                     </div>
                 </div>
             `;
+            wikiContainer.innerHTML += wikiArticle;
+            
+            if (isAdminMode && wikiList) {
+                wikiList.innerHTML += `
+                    <div class="editable-item">
+                        <div>
+                            <strong>${w.titulo}</strong><br>
+                            <small>${w.descricao.substring(0, 50)}...</small>
+                            ${w.imagem ? '<br><img src="' + w.imagem + '" style="width:50px; height:50px; object-fit:cover;">' : ''}
+                        </div>
+                        <button class="btn btn-small btn-danger" onclick="deleteWikiArticle('${doc.id}')">🗑️</button>
+                    </div>
+                `;
+            }
         });
         
     } catch (error) {
         console.error('Erro ao carregar:', error);
     }
-}
-
-// Utilitário YouTube ID
-function getYouTubeId(url) {
-    const regExp = /^.*(youtu.be\/|v\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
 }
 
 // Inicialização
