@@ -22,12 +22,14 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 // Verificar se já está logado
 auth.onAuthStateChanged((user) => {
     if (user) {
+        // Usuário está logado
         isAdminMode = true;
         document.body.classList.add('admin-mode');
         document.getElementById('adminPanel').classList.add('active');
         document.getElementById('overlay').classList.remove('active');
         loadData();
     } else {
+        // Usuário não está logado
         isAdminMode = false;
         document.body.classList.remove('admin-mode');
         document.getElementById('adminPanel').classList.remove('active');
@@ -61,6 +63,7 @@ async function loginWithEmail() {
     try {
         await auth.signInWithEmailAndPassword(email, password);
         hideLoginModal();
+        // Login bem-sucedido - onAuthStateChanged vai cuidar do resto
     } catch (error) {
         document.getElementById('loginError').style.display = 'block';
         console.error('Erro no login:', error);
@@ -73,7 +76,7 @@ function logout() {
         document.body.classList.remove('admin-mode');
         document.getElementById('adminPanel').classList.remove('active');
         document.getElementById('overlay').classList.remove('active');
-        loadData();
+        loadData(); // Recarrega sem modo admin
     });
 }
 
@@ -95,7 +98,7 @@ async function loadData() {
             document.getElementById('site-description').textContent = data.siteDescription || 'O servidor mais épico de Minecraft!';
             document.getElementById('server-ip-display').textContent = data.ip || 'sp-16.raze.host:25625';
             document.getElementById('version-text').textContent = data.version || '1.20.4';
-            document.getElementById('about-text').textContent = data.about || 'DraxenBR é um servidor feito para a comunidade brasileira, com foco em diversão e amizade!';
+            document.getElementById('about-text').textContent = data.about || 'DraxenBR é um servidor feito para a comunidade brasileira, com foco em diversão e amizade! Temos diversos modos de jogo e eventos especiais.';
             document.getElementById('discord-link').textContent = data.discord || 'https://discord.gg/eQ4exVGPJw';
             document.getElementById('discord-link').href = data.discord || 'https://discord.gg/eQ4exVGPJw';
             document.getElementById('discord-button').href = data.discord || 'https://discord.gg/eQ4exVGPJw';
@@ -214,4 +217,248 @@ async function loadData() {
         videosSnapshot.forEach((doc) => {
             const v = doc.data();
             const videoId = getYouTubeId(v.url);
-            const
+            const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : '';
+            
+            const videoCard = `
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="${thumbnailUrl}" alt="${v.titulo || 'Vídeo'}">
+                    </div>
+                    <h4>${v.titulo || 'Sem título'}</h4>
+                    <p>Por: ${v.autor || 'Desconhecido'}</p>
+                    <a href="${v.url}" target="_blank" class="video-link">🎬 ASSISTIR</a>
+                </div>
+            `;
+            
+            if (v.categoria === 'gameplay') {
+                gameplaysContainer.innerHTML += videoCard;
+            } else {
+                tutoriaisContainer.innerHTML += videoCard;
+            }
+            
+            if (isAdminMode) {
+                const listItem = `
+                    <div class="editable-item">
+                        <div>
+                            <strong>${v.titulo || 'Sem título'}</strong><br>
+                            <small>${v.autor || 'Desconhecido'} - ${v.categoria}</small>
+                        </div>
+                        <button class="btn btn-small btn-danger" onclick="deleteVideo('${doc.id}')">🗑️</button>
+                    </div>
+                `;
+                
+                if (v.categoria === 'gameplay' && gameplaysList) {
+                    gameplaysList.innerHTML += listItem;
+                } else if (tutoriaisList) {
+                    tutoriaisList.innerHTML += listItem;
+                }
+            }
+        });
+        
+    } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+    }
+}
+
+// Funções de salvamento
+async function saveAllChanges() {
+    try {
+        await db.collection('config').doc('geral').set({
+            siteTitle: document.getElementById('editSiteTitle').value,
+            siteDescription: document.getElementById('editSiteDescription').value,
+            ip: document.getElementById('editServerIP').value,
+            version: document.getElementById('editVersion').value,
+            about: document.getElementById('editAbout').value,
+            discord: document.getElementById('editDiscord').value,
+            email: document.getElementById('editEmail').value,
+            footer: document.getElementById('editFooter').value,
+            modsLink: document.getElementById('editModsLink').value,
+            wikiContent: document.getElementById('editWikiContent').value
+        });
+        
+        alert('✅ Dados salvos! Todos os visitantes verão as alterações.');
+        loadData();
+    } catch (error) {
+        alert('Erro ao salvar: ' + error.message);
+    }
+}
+
+// Funções para Features
+async function addFeature() {
+    const title = document.getElementById('newFeatureTitle').value;
+    const desc = document.getElementById('newFeatureDesc').value;
+    
+    if (title && desc) {
+        try {
+            const snapshot = await db.collection('features').get();
+            const ordem = snapshot.size;
+            
+            await db.collection('features').add({
+                title: title,
+                desc: desc,
+                ordem: ordem
+            });
+            
+            document.getElementById('newFeatureTitle').value = '';
+            document.getElementById('newFeatureDesc').value = '';
+            loadData();
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
+    } else {
+        alert('Preencha título e descrição!');
+    }
+}
+
+async function deleteFeature(id) {
+    if (confirm('Remover esta feature?')) {
+        await db.collection('features').doc(id).delete();
+        loadData();
+    }
+}
+
+// Funções para Regras
+async function addRule() {
+    const rule = document.getElementById('newRule').value;
+    if (rule) {
+        try {
+            const snapshot = await db.collection('rules').get();
+            const ordem = snapshot.size;
+            
+            await db.collection('rules').add({
+                text: rule,
+                ordem: ordem
+            });
+            
+            document.getElementById('newRule').value = '';
+            loadData();
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
+    } else {
+        alert('Digite uma regra!');
+    }
+}
+
+async function deleteRule(id) {
+    if (confirm('Remover esta regra?')) {
+        await db.collection('rules').doc(id).delete();
+        loadData();
+    }
+}
+
+// Funções para Imagens
+async function addImage() {
+    const url = document.getElementById('newImageUrl').value;
+    if (url) {
+        try {
+            const snapshot = await db.collection('images').get();
+            const ordem = snapshot.size;
+            
+            await db.collection('images').add({
+                url: url,
+                ordem: ordem
+            });
+            
+            document.getElementById('newImageUrl').value = '';
+            loadData();
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
+    } else {
+        alert('Digite uma URL válida!');
+    }
+}
+
+async function deleteImage(id) {
+    if (confirm('Remover esta imagem?')) {
+        await db.collection('images').doc(id).delete();
+        loadData();
+    }
+}
+
+// Funções para Vídeos
+async function addVideo(categoria) {
+    let url, titulo, autor;
+    
+    if (categoria === 'gameplay') {
+        url = document.getElementById('newGameplayUrl').value;
+        titulo = document.getElementById('newGameplayTitle').value;
+        autor = document.getElementById('newGameplayAuthor').value;
+    } else {
+        url = document.getElementById('newTutorialUrl').value;
+        titulo = document.getElementById('newTutorialTitle').value;
+        autor = document.getElementById('newTutorialAuthor').value;
+    }
+    
+    if (url) {
+        try {
+            const snapshot = await db.collection('videos').get();
+            const ordem = snapshot.size;
+            
+            await db.collection('videos').add({
+                url: url,
+                titulo: titulo || 'Sem título',
+                autor: autor || 'Desconhecido',
+                categoria: categoria,
+                ordem: ordem
+            });
+            
+            if (categoria === 'gameplay') {
+                document.getElementById('newGameplayUrl').value = '';
+                document.getElementById('newGameplayTitle').value = '';
+                document.getElementById('newGameplayAuthor').value = '';
+            } else {
+                document.getElementById('newTutorialUrl').value = '';
+                document.getElementById('newTutorialTitle').value = '';
+                document.getElementById('newTutorialAuthor').value = '';
+            }
+            
+            loadData();
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
+    } else {
+        alert('Digite uma URL válida!');
+    }
+}
+
+async function deleteVideo(id) {
+    if (confirm('Remover este vídeo?')) {
+        await db.collection('videos').doc(id).delete();
+        loadData();
+    }
+}
+
+// Função para copiar IP
+function copyIP() {
+    const ip = document.getElementById('server-ip-display').textContent;
+    navigator.clipboard.writeText(ip).then(() => {
+        alert("IP copiado: " + ip);
+    });
+}
+
+// Função para atualizar jogadores online (simulado)
+function updatePlayers() {
+    document.getElementById('players').textContent = Math.floor(Math.random() * 100);
+}
+
+// Inicialização
+loadData();
+setInterval(updatePlayers, 30000);
+updatePlayers();
+
+// Rolagem suave
+document.querySelectorAll('nav a').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) target.scrollIntoView({behavior: 'smooth'});
+    });
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        hideLoginModal();
+    }
+});
