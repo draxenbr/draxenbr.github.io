@@ -9,7 +9,6 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
@@ -57,7 +56,7 @@
             <div class="features" id="features-container"></div>
         </section>
         
-        <!-- Seção Galeria -->
+        <!-- Seção Galeria (CORRIGIDA) -->
         <section class="server-info" id="galeria">
             <h2>📸 Galeria do Servidor</h2>
             <div class="gallery" id="gallery-container"></div>
@@ -91,7 +90,7 @@
             <div class="videos-container" id="tutoriais-container"></div>
         </section>
         
-        <!-- Seção Wiki -->
+        <!-- Seção Wiki (CORRIGIDA) -->
         <section class="server-info" id="wiki">
             <h2>📖 Wiki / Guias</h2>
             <div class="wiki-container" id="wiki-container">
@@ -128,7 +127,7 @@
         <p id="loginError" style="color: #ff6b6b; display: none;">E-mail ou senha inválidos</p>
     </div>
     
-    <!-- PAINEL ADMIN CORRIGIDO - IDs IGUAIS AO SCRIPT -->
+    <!-- PAINEL ADMIN COMPLETO -->
     <div class="admin-panel" id="adminPanel">
         <div class="admin-header">
             <h2>👑 Painel Administrativo</h2>
@@ -190,14 +189,13 @@
                 <button class="btn btn-success" onclick="addRule()">Adicionar Regra</button>
             </div>
             
-            <!-- GALERIA COM UPLOAD -->
-            <h3>📸 Gerenciar Galeria</h3>
+            <!-- GALERIA VIA URL -->
+            <h3>📸 Gerenciar Galeria (URL)</h3>
             <div id="images-list"></div>
             <div class="form-group">
-                <label>Upload de Imagem:</label>
-                <input type="file" id="imageUpload" accept="image/*">
-                <button class="btn btn-success" onclick="uploadImage()" style="margin-top: 10px;">📤 Fazer Upload</button>
-                <p style="font-size: 0.9em; color: #39ff14;">Formatos: JPG, PNG, GIF (máx 5MB)</p>
+                <label>URL da Imagem:</label>
+                <input type="url" id="newImageUrl" placeholder="https://...">
+                <button class="btn btn-success" onclick="addImage()" style="margin-top: 10px;">➕ Adicionar Imagem</button>
             </div>
             
             <!-- VÍDEOS -->
@@ -221,17 +219,17 @@
                 <button class="btn btn-success" onclick="addVideo('tutorial')">Adicionar Tutorial</button>
             </div>
             
-            <!-- WIKI ARTIGOS -->
+            <!-- WIKI ARTIGOS VIA URL -->
             <h3>📚 Gerenciar Wiki</h3>
             <div id="wiki-list"></div>
             <div class="form-group wiki-add">
                 <h4>Adicionar Novo Artigo</h4>
                 <input type="text" id="newWikiTitle" placeholder="Título do artigo">
                 <textarea id="newWikiDesc" rows="3" placeholder="Descrição/conteúdo do artigo..."></textarea>
-                <input type="url" id="newWikiLink" placeholder="Link opcional (ex: mais detalhes)">
+                <input type="url" id="newWikiLink" placeholder="Link opcional">
                 <div class="form-group">
-                    <label>Imagem do Artigo:</label>
-                    <input type="file" id="wikiImageUpload" accept="image/*">
+                    <label>URL da Imagem (opcional):</label>
+                    <input type="url" id="newWikiImageUrl" placeholder="https://...">
                 </div>
                 <button class="btn btn-success" onclick="addWikiArticle()">📝 Adicionar Artigo</button>
             </div>
