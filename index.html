@@ -13,7 +13,7 @@
 </head>
 <body>
     <header>
-        <h1 id="site-title">⚡ DraxenBR ⚡</h1>
+        <h1 id="site-title" class="neon-title">⚡ DraxenBR ⚡</h1>
         <p id="site-description">Carregando...</p>
     </header>
     
@@ -23,10 +23,14 @@
         <a href="#features">Recursos</a>
         <a href="#galeria">Galeria</a>
         <a href="#regras">Regras</a>
+        <a href="#downloads">Downloads</a>
+        <a href="#videos">Vídeos</a>
+        <a href="#wiki">Wiki</a>
         <a href="#contato">Contato</a>
     </nav>
     
     <div class="container">
+        <!-- Seção Home -->
         <section class="server-info" id="home">
             <h2>📊 Status do Servidor</h2>
             <p>Versão: <span id="version-text">Carregando...</span></p>
@@ -36,36 +40,71 @@
             </div>
             <p>Clique no IP para copiar!</p>
             <div style="text-align: center; margin-top: 20px;">
-                <a href="#" class="btn" onclick="copyIP()">🎮 COPIAR IP</a>
+                <a href="#" class="btn ip-btn" onclick="copyIP()">🎮 COPIAR IP</a>
             </div>
         </section>
         
+        <!-- Seção Sobre -->
         <section class="server-info" id="sobre">
             <h2>🌟 Sobre o Servidor</h2>
             <p id="about-text">Carregando...</p>
         </section>
         
+        <!-- Seção Features -->
         <section class="server-info" id="features">
             <h2>🎯 Nossos Recursos</h2>
             <div class="features" id="features-container"></div>
         </section>
         
+        <!-- Seção Galeria -->
         <section class="server-info" id="galeria">
             <h2>📸 Galeria do Servidor</h2>
             <div class="gallery" id="gallery-container"></div>
         </section>
         
+        <!-- Seção Regras -->
         <section class="server-info" id="regras">
             <h2>📜 Regras do Servidor</h2>
             <ul id="rules-container" style="margin-left: 20px; line-height: 2;"></ul>
         </section>
         
+        <!-- NOVA SEÇÃO: DOWNLOADS -->
+        <section class="server-info" id="downloads">
+            <h2>📥 Downloads</h2>
+            <div class="downloads-container" id="downloads-container">
+                <p id="downloads-text">Carregando...</p>
+                <a href="#" target="_blank" class="btn download-btn" id="download-link">📥 BAIXAR MODS</a>
+            </div>
+        </section>
+        
+        <!-- NOVA SEÇÃO: VÍDEOS -->
+        <section class="server-info" id="videos">
+            <h2>🎬 Vídeos</h2>
+            
+            <!-- Categoria Gameplays -->
+            <h3 class="video-category-title">🎮 Gameplays</h3>
+            <div class="videos-container" id="gameplays-container"></div>
+            
+            <!-- Categoria Tutoriais -->
+            <h3 class="video-category-title">📚 Tutoriais</h3>
+            <div class="videos-container" id="tutoriais-container"></div>
+        </section>
+        
+        <!-- NOVA SEÇÃO: WIKI -->
+        <section class="server-info" id="wiki">
+            <h2>📖 Wiki / Guias</h2>
+            <div class="wiki-container" id="wiki-container">
+                <div id="wiki-content" class="wiki-content">Carregando...</div>
+            </div>
+        </section>
+        
+        <!-- Seção Contato -->
         <section class="server-info" id="contato">
             <h2>📞 Contato</h2>
             <p>Discord: <a href="#" target="_blank" id="discord-link">Carregando...</a></p>
             <p>Email: <span id="contact-email">Carregando...</span></p>
             <div style="text-align: center; margin-top: 20px;">
-                <a href="#" target="_blank" class="btn" id="discord-button">💬 ENTRAR NO DISCORD</a>
+                <a href="#" target="_blank" class="btn discord-btn" id="discord-button">💬 ENTRAR NO DISCORD</a>
             </div>
         </section>
     </div>
@@ -74,10 +113,11 @@
         <p id="footer-text">Carregando...</p>
     </footer>
     
-    <button class="admin-btn" onclick="showLoginModal()">👑</button>
+    <!-- Coroa Admin com animação -->
+    <button class="admin-btn" onclick="showLoginModal()" id="adminBtn">👑</button>
     <div class="overlay" id="overlay" onclick="hideAllModals()"></div>
     
-    <!-- Modal de Login Seguro -->
+    <!-- Modal de Login -->
     <div id="loginModal" class="admin-login" style="display: none;">
         <h3>🔐 Login Administrativo</h3>
         <input type="email" id="loginEmail" placeholder="E-mail" value="admin@draxenbr.com">
@@ -87,6 +127,7 @@
         <p id="loginError" style="color: #ff6b6b; display: none;">E-mail ou senha inválidos</p>
     </div>
     
+    <!-- Painel Admin (com todas as funções) -->
     <div class="admin-panel" id="adminPanel">
         <div class="admin-header">
             <h2>👑 Painel Administrativo</h2>
@@ -127,6 +168,18 @@
                 <input type="text" id="editFooter">
             </div>
             
+            <!-- Link dos Mods -->
+            <div class="form-group">
+                <label>Link dos Mods (Google Drive):</label>
+                <input type="url" id="editModsLink" placeholder="https://drive.google.com/...">
+            </div>
+            
+            <!-- Conteúdo da Wiki -->
+            <div class="form-group">
+                <label>Conteúdo da Wiki (pode usar HTML básico):</label>
+                <textarea id="editWikiContent" rows="8" placeholder="Escreva o conteúdo da wiki aqui..."></textarea>
+            </div>
+            
             <h3>🎯 Features</h3>
             <div id="features-list"></div>
             <div class="form-group">
@@ -147,6 +200,27 @@
             <div class="form-group">
                 <input type="url" id="newImageUrl" placeholder="URL da imagem">
                 <button class="btn btn-success" onclick="addImage()">Adicionar</button>
+            </div>
+            
+            <!-- Gerenciar Vídeos -->
+            <h3>🎬 Gerenciar Vídeos</h3>
+            
+            <h4>🎮 Gameplays</h4>
+            <div id="gameplays-list"></div>
+            <div class="form-group video-add">
+                <input type="url" id="newGameplayUrl" placeholder="URL do YouTube">
+                <input type="text" id="newGameplayTitle" placeholder="Título do vídeo">
+                <input type="text" id="newGameplayAuthor" placeholder="Nome do jogador">
+                <button class="btn btn-success" onclick="addVideo('gameplay')">Adicionar Gameplay</button>
+            </div>
+            
+            <h4>📚 Tutoriais</h4>
+            <div id="tutoriais-list"></div>
+            <div class="form-group video-add">
+                <input type="url" id="newTutorialUrl" placeholder="URL do YouTube">
+                <input type="text" id="newTutorialTitle" placeholder="Título do tutorial">
+                <input type="text" id="newTutorialAuthor" placeholder="Autor">
+                <button class="btn btn-success" onclick="addVideo('tutorial')">Adicionar Tutorial</button>
             </div>
             
             <button class="btn btn-success" onclick="saveAllChanges()">💾 Salvar no Firebase (para todos)</button>
