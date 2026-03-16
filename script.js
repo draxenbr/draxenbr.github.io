@@ -1,4 +1,4 @@
-// CONFIGURAÇÃO DO FIREBASE - USE A SUA AQUI!
+// CONFIGURAÇÃO DO FIREBASE - COLE A SUA AQUI!
 const firebaseConfig = {
     apiKey: "AIzaSyBZ_3iMIlOA09AptniHlZCwWKBu6Ci_rO8",
     authDomain: "draxenbr-2d193.firebaseapp.com",
@@ -22,14 +22,12 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 // Verificar se já está logado
 auth.onAuthStateChanged((user) => {
     if (user) {
-        // Usuário está logado
         isAdminMode = true;
         document.body.classList.add('admin-mode');
         document.getElementById('adminPanel').classList.add('active');
         document.getElementById('overlay').classList.remove('active');
         loadData();
     } else {
-        // Usuário não está logado
         isAdminMode = false;
         document.body.classList.remove('admin-mode');
         document.getElementById('adminPanel').classList.remove('active');
@@ -63,7 +61,6 @@ async function loginWithEmail() {
     try {
         await auth.signInWithEmailAndPassword(email, password);
         hideLoginModal();
-        // Login bem-sucedido - onAuthStateChanged vai cuidar do resto
     } catch (error) {
         document.getElementById('loginError').style.display = 'block';
         console.error('Erro no login:', error);
@@ -76,8 +73,15 @@ function logout() {
         document.body.classList.remove('admin-mode');
         document.getElementById('adminPanel').classList.remove('active');
         document.getElementById('overlay').classList.remove('active');
-        loadData(); // Recarrega sem modo admin
+        loadData();
     });
+}
+
+// Função para extrair ID do YouTube
+function getYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
 }
 
 // Carregar dados do Firebase
@@ -91,12 +95,25 @@ async function loadData() {
             document.getElementById('site-description').textContent = data.siteDescription || 'O servidor mais épico de Minecraft!';
             document.getElementById('server-ip-display').textContent = data.ip || 'sp-16.raze.host:25625';
             document.getElementById('version-text').textContent = data.version || '1.20.4';
-            document.getElementById('about-text').textContent = data.about || 'DraxenBR é um servidor feito para a comunidade brasileira, com foco em diversão e amizade! Temos diversos modos de jogo e eventos especiais.';
+            document.getElementById('about-text').textContent = data.about || 'DraxenBR é um servidor feito para a comunidade brasileira, com foco em diversão e amizade!';
             document.getElementById('discord-link').textContent = data.discord || 'https://discord.gg/eQ4exVGPJw';
             document.getElementById('discord-link').href = data.discord || 'https://discord.gg/eQ4exVGPJw';
             document.getElementById('discord-button').href = data.discord || 'https://discord.gg/eQ4exVGPJw';
             document.getElementById('contact-email').textContent = data.email || 'contato@draxenbr.com';
             document.getElementById('footer-text').textContent = data.footer || '© 2024 DraxenBR. Todos os direitos reservados.';
+            
+            // Link dos mods
+            const downloadLink = document.getElementById('download-link');
+            if (data.modsLink) {
+                downloadLink.href = data.modsLink;
+                document.getElementById('downloads-text').textContent = 'Clique no botão abaixo para baixar os mods do servidor:';
+            } else {
+                downloadLink.href = '#';
+                document.getElementById('downloads-text').textContent = 'Nenhum link disponível no momento.';
+            }
+            
+            // Conteúdo da Wiki
+            document.getElementById('wiki-content').innerHTML = data.wikiContent || '<p>Conteúdo da wiki em breve...</p>';
             
             if (isAdminMode) {
                 document.getElementById('editSiteTitle').value = data.siteTitle || '';
@@ -107,6 +124,8 @@ async function loadData() {
                 document.getElementById('editDiscord').value = data.discord || '';
                 document.getElementById('editEmail').value = data.email || '';
                 document.getElementById('editFooter').value = data.footer || '';
+                document.getElementById('editModsLink').value = data.modsLink || '';
+                document.getElementById('editWikiContent').value = data.wikiContent || '';
             }
         }
         
@@ -180,143 +199,19 @@ async function loadData() {
             }
         });
         
-    } catch (error) {
-        console.error("Erro ao carregar dados:", error);
-    }
-}
-
-// Funções de salvamento
-async function saveAllChanges() {
-    try {
-        await db.collection('config').doc('geral').set({
-            siteTitle: document.getElementById('editSiteTitle').value,
-            siteDescription: document.getElementById('editSiteDescription').value,
-            ip: document.getElementById('editServerIP').value,
-            version: document.getElementById('editVersion').value,
-            about: document.getElementById('editAbout').value,
-            discord: document.getElementById('editDiscord').value,
-            email: document.getElementById('editEmail').value,
-            footer: document.getElementById('editFooter').value
-        });
+        // Carregar vídeos
+        const videosSnapshot = await db.collection('videos').orderBy('ordem').get();
+        const gameplaysContainer = document.getElementById('gameplays-container');
+        const tutoriaisContainer = document.getElementById('tutoriais-container');
+        gameplaysContainer.innerHTML = '';
+        tutoriaisContainer.innerHTML = '';
         
-        alert('✅ Dados salvos! Todos os visitantes verão as alterações.');
-        loadData();
-    } catch (error) {
-        alert('Erro ao salvar: ' + error.message);
-    }
-}
-
-async function addFeature() {
-    const title = document.getElementById('newFeatureTitle').value;
-    const desc = document.getElementById('newFeatureDesc').value;
-    
-    if (title && desc) {
-        try {
-            const snapshot = await db.collection('features').get();
-            const ordem = snapshot.size;
-            
-            await db.collection('features').add({
-                title: title,
-                desc: desc,
-                ordem: ordem
-            });
-            
-            document.getElementById('newFeatureTitle').value = '';
-            document.getElementById('newFeatureDesc').value = '';
-            loadData();
-        } catch (error) {
-            alert('Erro: ' + error.message);
-        }
-    }
-}
-
-async function deleteFeature(id) {
-    if (confirm('Remover esta feature?')) {
-        await db.collection('features').doc(id).delete();
-        loadData();
-    }
-}
-
-async function addRule() {
-    const rule = document.getElementById('newRule').value;
-    if (rule) {
-        try {
-            const snapshot = await db.collection('rules').get();
-            const ordem = snapshot.size;
-            
-            await db.collection('rules').add({
-                text: rule,
-                ordem: ordem
-            });
-            
-            document.getElementById('newRule').value = '';
-            loadData();
-        } catch (error) {
-            alert('Erro: ' + error.message);
-        }
-    }
-}
-
-async function deleteRule(id) {
-    if (confirm('Remover esta regra?')) {
-        await db.collection('rules').doc(id).delete();
-        loadData();
-    }
-}
-
-async function addImage() {
-    const url = document.getElementById('newImageUrl').value;
-    if (url) {
-        try {
-            const snapshot = await db.collection('images').get();
-            const ordem = snapshot.size;
-            
-            await db.collection('images').add({
-                url: url,
-                ordem: ordem
-            });
-            
-            document.getElementById('newImageUrl').value = '';
-            loadData();
-        } catch (error) {
-            alert('Erro: ' + error.message);
-        }
-    }
-}
-
-async function deleteImage(id) {
-    if (confirm('Remover esta imagem?')) {
-        await db.collection('images').doc(id).delete();
-        loadData();
-    }
-}
-
-function copyIP() {
-    const ip = document.getElementById('server-ip-display').textContent;
-    navigator.clipboard.writeText(ip).then(() => {
-        alert("IP copiado: " + ip);
-    });
-}
-
-function updatePlayers() {
-    document.getElementById('players').textContent = Math.floor(Math.random() * 100);
-}
-
-// Inicialização
-loadData();
-setInterval(updatePlayers, 30000);
-updatePlayers();
-
-document.querySelectorAll('nav a').forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = document.querySelector(link.getAttribute('href'));
-        if (target) target.scrollIntoView({behavior: 'smooth'});
-    });
-});
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        hideLoginModal();
-    }
-});
+        const gameplaysList = document.getElementById('gameplays-list');
+        const tutoriaisList = document.getElementById('tutoriais-list');
+        if (gameplaysList) gameplaysList.innerHTML = '';
+        if (tutoriaisList) tutoriaisList.innerHTML = '';
+        
+        videosSnapshot.forEach((doc) => {
+            const v = doc.data();
+            const videoId = getYouTubeId(v.url);
+            const
